@@ -37,6 +37,13 @@ To be able to achieve what has been described in this project one has to follow 
   Click on ```Start```; click on ```Definitions```; Click on ```system```; Click on ```About```; Click on ```Advanced system definitions```; Click on ```Environment variables```. In the box ```Variables for user <username>``` click on button ```New```, then in the next pop-up window in the box ```Name of the variable```fill in: ```MCP2221```. In the box ```value of the variable```fill in: ```1```; Click on button ```OK```; Close the windows that had been opened in these steps.
 - Perform the checks: ```Check Platform was detected``` in Adafruit's manual.
 
+USB-UART-to-I2C:
+To use the MCP2221A's UART-to-I2C functionality work, I connected wires between the following MCP2221A pins:
+- ```TX```pin to ```SCL```pin;
+- ```RX```pin to ```SDA``` pin.
+
+Data Indicator LED:
+In two of the images you can see that I added an external (blue) LED. I connected this LED and a 330 ohm resistor in series between the ```+5V``` pin and the ```SCL``` pin of the i75 hub controller. This external LED is used as an indicator at moments that GPS data messages are being received.
 
 Aside from displaying just numerals on the panel I also wanted to display static texts on the panel, especially during the startup of the script. Later I maybe will add also static text like: ```aircraft parked```. Because I did not find an example to display static texts on these kind of panels, I used the following example as a starting point: ```pimoroni-pico/micropython/examples/interstate75/i75_64x64_scrolling_text.py```. This script I changed drastically. I also modified the font file: ```font8x12.py```.
 
