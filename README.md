@@ -43,7 +43,7 @@ To use the MCP2221A's UART-to-I2C functionality work, I connected wires between 
 - ```RX```pin to ```SDA``` pin.
 
 Data Indicator LED:
-In two of the images you can see that I added an external (blue) LED. I connected this LED and a 330 ohm resistor in series between the ```+5V``` pin and the ```SCL``` pin of the i75 hub controller. This external LED is used as an indicator at moments that GPS data messages are being received.
+In two of the images you can see that I added an external (blue) LED. I connected this LED and a 330 ohm resistor in series between the ```+5V``` pin and the ```SCL``` pin of the i75 hub controller. The external LED blinks at moments that GPS GPRMC datagram messages are being received.
 
 Aside from displaying just numerals on the panel I also wanted to display static texts on the panel, especially during the startup of the script. Later I maybe will add also static text like: ```aircraft parked```. Because I did not find an example to display static texts on these kind of panels, I used the following example as a starting point: ```pimoroni-pico/micropython/examples/interstate75/i75_64x64_scrolling_text.py```. This script I changed drastically. I also modified the font file: ```font8x12.py```.
 
