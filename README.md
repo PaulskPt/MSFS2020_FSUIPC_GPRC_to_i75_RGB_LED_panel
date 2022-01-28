@@ -2,7 +2,7 @@
 Display flown track to i75 RGB LED Matrix panel and use ground speed to control displayed data
 
 Software:
-See 'Examples'
+See 'Example'
 
 Used hardware / manuals:
 
@@ -44,7 +44,7 @@ For more info on the reason why I changed the font file see: ```How I dealt with
 
 I used the Thonny app to save, edit and test the two script files: ```main.py``` and ```Interstate75_GPRMC_64x32_matrix_code_v1.py``` and two font files: ```font8x12_v4.py```and ```font10x14.py``` to the i75 hub controller.
 
-The i75 hub controller has three buttons. One of these buttons is called ```A```. This button I used to force the script to exit from running. Micropython looks at boot time for a file called ```main.py```. During the development of this project it happened to me that I had my script named ```main.py```, then there was some error that did not cause the script to crash but I was not able to stop it from running. Also programming a try: ... except KeyboardInterrupt: ... did not work for some unknown reason. By using the A button to call SystemExit() I was able to create a suitable backdoor to stop the script from running. At crucial points inside the script, e.g.: inside the ```ck_uart()``` function (which is called very frequently), I put a call to the function ```ck_btns()```. In the case the button A has been pressed the hub object function hub.stop() will be called, clearing the planel to black, then call the SystemExit() function, giving control back to the calling (operating system or for example the Thonny) app.
+The i75 hub controller has three buttons. One of these buttons is called ```A```. This button I used to force the script to exit from running. Micropython looks at boot time for a file called ```main.py```. During the development of this project it happened to me that I had my script named ```main.py```, then there was some error that did not cause the script to crash but I was not able to stop it from running. Also programming a try: ... except KeyboardInterrupt: ... did not work while the script was inside function ck_uart() waiting for data to be received. By using the A button to call SystemExit() I was able to create a suitable backdoor to stop the script from running. At crucial points inside the script, e.g.: inside the ```ck_uart()``` function (which is called very frequently), I put a call to the function ```ck_btns()```. In the case the button A has been pressed the hub object function hub.stop() will be called, clearing the planel to black, then call the SystemExit() function, giving control back to the calling (operating system or for example the Thonny) app.
 
 Disclamer:
 This project has been tested and working on pc´s running MS Windows 10 Pro or Windows 11 Pro. The script  ```Interstate75_GPRMC_64x32_matrix_code_v1.py``` has not yet fully been reviewed and cleaned of remains of what the script originally was. I did not want to wait with publishing my project as a repo on Github. The script has some 'remains' that are not used. I am working on that.
