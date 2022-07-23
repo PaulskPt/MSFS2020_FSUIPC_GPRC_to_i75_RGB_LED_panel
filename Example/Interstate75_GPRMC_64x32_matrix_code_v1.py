@@ -38,7 +38,10 @@
     The groundspeed data is used to discern if the airplane is moving or not. When moving, the LED
     panel will display the track. When the airplane is stopped or parked, the LED panel will be OFF.
     
-    Update 2022-07-23. Some mods in ck_uart and added gc module.
+    Update 2022-07-23.
+    Updated the micropython firmware to v1.19
+    Modified the appearance of DIGIT '9'. Added the bottom segment.
+    Some mods in ck_uart and added gc module.
     In ck_uart() blocking received $GPGGA messages.
     NOTE: if you get errors or garbled / delayed reception of gps messages: Check the baudrate in FSUIPC GPSout
     and here in this script both are set for 4800 baud.
