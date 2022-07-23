@@ -107,7 +107,7 @@ DIGITS = [0b1110111,
           0b1101101,
           0b0101110,
           0b1101011,
-          0b1111010,
+          0b1111011,
           0b0100101,
           0b1111111,
           0b1101111]
@@ -376,10 +376,10 @@ class HdgRibbon():
         """Draw a sequence of digits.
 
         Uses lines to draw digits like so:
-         _      _  _       _      _   _   _
+         _      _  _       _   _  _   _   _
         | |  |  _| _| |_| |_  |_   | |_| |_|
-        |_|  | |_  _|   |  _| |_|  | |_|   |
-
+        |_|  | |_  _|   |  _| |_|  | |_|  _|
+   
         Digits are bit-packed into DIGITS,
         each part corresponds to 1-bit:
 
