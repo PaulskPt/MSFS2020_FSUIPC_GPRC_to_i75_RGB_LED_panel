@@ -40,7 +40,7 @@
     
     Update 2022-07-23.
     Updated the micropython firmware to v1.19
-    Modified the appearance of DIGIT '9'. Added the bottom segment.
+    Modified the appearance of DIGIT nrs: '6' and '9'.
     Some mods in ck_uart and added gc module.
     In ck_uart() blocking received $GPGGA messages.
     NOTE: if you get errors or garbled / delayed reception of gps messages: Check the baudrate in FSUIPC GPSout
