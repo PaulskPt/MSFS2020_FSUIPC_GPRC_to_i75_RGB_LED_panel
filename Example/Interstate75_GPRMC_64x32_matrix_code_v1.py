@@ -37,6 +37,11 @@
     In this project we only will use the Groundspeed data item and the 'track made good' data item.
     The groundspeed data is used to discern if the airplane is moving or not. When moving, the LED
     panel will display the track. When the airplane is stopped or parked, the LED panel will be OFF.
+    
+    Update 2022-07-23. Some mods in ck_uart and added gc module.
+    In ck_uart() blocking received $GPGGA messages.
+    NOTE: if you get errors or garbled / delayed reception of gps messages: Check the baudrate in FSUIPC GPSout
+    and here in this script both are set for 4800 baud.
 
 """
 # Imports for the Interstate 75
@@ -55,7 +60,7 @@ from breakout_rtc import BreakoutRTC # idem
 import sys
 from time import sleep
 from array import *
-
+import gc
 # ------------------------------------+
 # Imports for Pimoroni DisplayHatMini |
 # ------------------------------------+
@@ -70,6 +75,8 @@ my_debug = False  # Debug flag   |
 # Other important flags          |
 # -------------------------------+
 use_button_a = True
+
+gc.enable() # Enable autmatic garbage collection
 
 #sound = ADC(1)
 # --------------------------------------+
@@ -168,7 +175,7 @@ try:
     #uart = serial.Serial("COM26", baudrate=9600, timeout=10)
     tx_pin = Pin(20, Pin.OUT)  # i2c sda
     rx_pin = Pin(21, Pin.IN, Pin.PULL_UP) # i2c scl
-    uart = UART(1, 9600, parity=None, stop=1, bits=8, rx=rx_pin, tx=tx_pin)
+    uart = UART(1, 4800, parity=None, stop=1, bits=8, rx=rx_pin, tx=tx_pin)
 
     # wait a minimum amount of time before trying to read the sensor
     sleep(0.25)
@@ -191,7 +198,7 @@ if sys.version_info > (3,): # Checked 2101-06-02: sys.version_info results in: (
 #       sys.stdio  results in '<io.FileIO 1>'
 #       sys.stderr results in '<io.FileIO 2>'
 
-ID_s = "" # The datagram ID e.g. GPRMC or GPGGA
+ID_s = "" # The datagram ID e.g. GPRMC
 ide_name = "MSFS2020 GPS GPRMC data reception decoder sketch by Paulsk (mailto: ct7agr@live.com.pt). "
 
 # BI_LED_R = 16 # RGB LED
@@ -216,7 +223,7 @@ loop_time = 0
 msg_nr = 0
 GPRMC_cnt = 0
 nr_msg_items = 0
-gs_item = 6
+gs_item = 7 # was: 6
 gs_old = 0.0
 ac_parked = True
 t_parked_init = 0
@@ -817,6 +824,8 @@ class HdgRibbon():
 def ck_gs():
     global msg_lst, gs_item
     if len(msg_lst) > 0:
+        if my_debug:
+            print("msg_lst = {}, gs_item={}".format(msg_lst, gs_item))
         return float(msg_lst[gs_item])
     return 0.0
 
@@ -913,14 +922,14 @@ def loop():
         print()
         """
         if chrs_rcvd > 0:
-            if my_debug:
+            if not my_debug:
                 #  print the rx_buffer less the \r\n at the end
                 print(TAG+"Msg nr: {}, ID: {}, characters rcvd from ck_uart() is: {}, contents: \n\"{}\"".format(msg_nr, ID_s, chrs_rcvd, rx_buffer[:-2]), file=sys.stderr)
             n = bfr_fnd(13)  # Check for a CR character
             if n >= 0:
                 rx_buffer = rx_buffer[:n]  # slice-off \r\n at end
 
-                if my_debug == 1:
+                if my_debug:
                     print("End-of-text code received.")
                     print("We go to process/print the received GPS datagram.")
                 nr_msg_items = split_msg() # split rx_buffer into list of messages: msg_lst
@@ -932,7 +941,7 @@ def loop():
                     print("nr of rx unicode errors: ", rx_unicode_err_cnt)
                 if rx_serexcept_err_cnt > 0:
                     print("nr of serial.exception errors: ", rx_serexcept_err_cnt)
-                if my_debug == 1:
+                if my_debug:
                     print("loop(): ID_s = {}; nr_msg_items = {}".format(ID_s, nr_msg_items), end="\n")
 
                 if nr_msg_items == 12:
@@ -1018,11 +1027,17 @@ def ck_uart():
     le = 0
     nTries = 0
     read_option = 0
+    delay_ms = 0.2
     if my_debug:
         print("Entering ck_uart()", end="\n")
     if type(uart) is None:
         return 0
+    gc.collect() # Run a garbage collection
+    if my_debug:
+        print("heap allocated:", gc.mem_alloc()) # print the nr of bytes of heap RAM that are allocated
+        print("heap free:", gc.mem_free())  # print nr of bytes of available heap RAM, or -1 if not known
     while True:
+
         try:
             if read_option == 0:
                 if uart.any():
@@ -1033,8 +1048,9 @@ def ck_uart():
                         print(TAG+"type(rx_buffer_s): ", type(rx_buffer_s))
                     if type(rx_buffer_s) is bytes and len(rx_buffer_s) > 0:
                         rx_buffer += rx_buffer_s.decode('ascii')
-                        le = len(rx_buffer)
-                        rx_buffer_s = b''
+                    if my_debug:
+                        print("read_option 0. rx_buffer=", rx_buffer)
+                    rx_buffer_s = b''
                 else:
                     if use_button_a:
                         ribbon.ck_btns() # use the time to check for button press
@@ -1042,18 +1058,32 @@ def ck_uart():
                 c = uart.read()
                 if c:
                     if len(c) > 0:
-                        rx_buffer += c
-                        nr_bytes += 1
-                        if ord(bytes(c)) == 10 and GPRMC_cnt >= 1: # check for LF (end-of-line char) and "GPRMC" already received
-                            msg_nr += 1
-                            if biLdIsOn == False:
-                                led_toggle()
-                            return len(rx_buffer)
+                        print("c= ", c)
+                        t = c.decode('ascii')
+                        rx_buffer += t
+      
+            le = len(rx_buffer)
+            nr_bytes = le
+            #if ord(bytes(c)) == 10 and GPRMC_cnt >= 1: # check for LF (end-of-line char) and "GPRMC" already received
+            n1 = rx_buffer[-15:].find('*') # find '*' in tail 10 characters. If not found, loop
+            if n1 < 0: # no '*' in tail
+                sleep(delay_ms)
+                continue
+            else:
+                n2 = rx_buffer.find('$GPRMC')
+                if n2 < 0:
+                    sleep(delay_ms)
+                    continue
+                n2 = rx_buffer.find('$GPGGA')
+                if n2 >= 0:  # found a GPGGA msg. Not wanted! It can happen that FSUIPC is set for broadcasting also GPGGA msgs.
+                    continue
+
         except Exception as e:  # was: serial.serialutil.SerialException:
             if read_option == 0:
                 read_option += 1
             elif read_option == 1:
                 print(TAG+"Error: ", e)
+                raise
                 return 0  # we cannot continue, there is no uart object
             else:
                 rx_serexcept_err_cnt+=1
