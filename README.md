@@ -56,6 +56,6 @@ The i75 hub controller has three buttons. One of these buttons is called ```A```
 Disclamer:
 This project has been tested and working on pc´s running MS Windows 10 Pro or Windows 11 Pro. The script  ```Interstate75_GPRMC_64x32_matrix_code_v1.py``` has not yet fully been reviewed and cleaned of remains of what the script originally was. I did not want to wait with publishing my project as a repo on Github. The script has some 'remains' that are not used. I am working on that.
 
-Update 2022-07-25. The LED panel now shows stext as: "airplaine parked" (when groundspeed is zero) and "airplaine is taxying" (when groundspeed < 30 knots). See the images.
+Update 2022-07-25. The LED panel now shows texts as: "airplaine parked" (when groundspeed is zero) and "airplaine is taxying" (when groundspeed < 30 knots). See the images.
 
 
