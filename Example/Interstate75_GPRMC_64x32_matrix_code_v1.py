@@ -227,7 +227,7 @@ msg_nr = 0
 GPRMC_cnt = 0
 nr_msg_items = 0
 gs_item = 6 # Note the '$GPRMC' item is not counted
-track_true = 7
+# tmg =  7 # see disp_crs()
 gs_old = 0.0
 ac_parked = True
 t_parked_init = 0
@@ -964,9 +964,10 @@ def loop():
                                 ribbon.hub_clear()
                                 ribbon.text("airplane is taxying", font_small)
                                 ribbon.flip()
-                            t_parked_init = 0.0
-                            #led_toggle()  # we toggle elsewhere (when receiving msg in ck_uart() )
-                            disp_crs()
+                            else:
+                                t_parked_init = 0.0
+                                #led_toggle()  # we toggle elsewhere (when receiving msg in ck_uart() )
+                                disp_crs()
                         else:
                             if t_parked_init == 0.0:
                                 t_parked_init = ribbon.millis()
@@ -1267,10 +1268,10 @@ def disp_crs():
     # $GPRMC message parts detail indexes:
     tmg =  7 # index to msg_lst. type float  (e.g.: 338.1)     < used
 
-    if my_debug == 1:
+    if my_debug:
         print(TAG+"GPRMC_cnt: {}".format(GPRMC_cnt), end="\n")
 
-    if my_debug == 1:
+    if my_debug:
         print(TAG, end='')
     le = len(msg_lst)
     if le > 0:
@@ -1292,7 +1293,7 @@ def disp_crs():
         trk_mag = round(trk_mag, 1)
         s_tmg_true = str(tmg_true)
         s = "CRS " + s_tmg_true + " degs"
-        #if my_debug == 1:
+        #if my_debug:
         print(TAG+s+" (T)")
             
         finish = ticks_ms()  # monotonic_ns()
