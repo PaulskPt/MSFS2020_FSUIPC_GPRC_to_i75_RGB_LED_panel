@@ -226,7 +226,8 @@ loop_time = 0
 msg_nr = 0
 GPRMC_cnt = 0
 nr_msg_items = 0
-gs_item = 7 # was: 6
+gs_item = 6 # Note the '$GPRMC' item is not counted
+track_true = 7
 gs_old = 0.0
 ac_parked = True
 t_parked_init = 0
@@ -947,17 +948,22 @@ def loop():
                 if my_debug:
                     print("loop(): ID_s = {}; nr_msg_items = {}".format(ID_s, nr_msg_items), end="\n")
 
+                print(TAG+"nr_msg_items",nr_msg_items)
                 if nr_msg_items == 12:
                     gs = ck_gs()
                     print(TAG+"GS = ",gs)
                     if ac_is_parked():
                         print(TAG+"Aircraft is parked")
                         ribbon.hub_clear()
-                        hub.flip()
+                        ribbon.text("airplane parked", font_small)
+                        ribbon.flip()
                     else:
                         if gs > 0.2:  # keep margin. Sometimes while parked the gs can be 0.1
                             if gs <= 30.0:
                                 print(TAG+"Aircraft is taxying")
+                                ribbon.hub_clear()
+                                ribbon.text("airplane is taxying", font_small)
+                                ribbon.flip()
                             t_parked_init = 0.0
                             #led_toggle()  # we toggle elsewhere (when receiving msg in ck_uart() )
                             disp_crs()
